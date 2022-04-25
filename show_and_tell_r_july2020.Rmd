@@ -1,0 +1,64 @@
+---
+title: "Show and Tell R"
+output: html_document
+author: "Jenny Sloane"
+date: "July 7, 2020"
+editor_options: 
+  chunk_output_type: console
+---
+<style type="text/css">
+
+p { /* Normal  */
+      font-size: 12px;
+      color: black;
+      font-weight: bold;
+  }
+
+h1 { /* Header 1 */
+  font-size: 32px;
+  color: blue;
+}
+
+h2 { /* Header 2 */
+    font-size: 30px;
+    color: purple;
+}
+
+h3 { /* Header 2 */
+  font-size: 26px;
+  color: pink;
+}
+
+}
+</style>
+
+<h2> You can use css to style your documents! (check out the Rmd code) <h2>
+## Using ## also works, so ## = h2
+
+<h3> Cleaning JSON data </h3>
+<p> if you've ever come across json data, you'll know how messy it can be and hard to use in R </p>
+<p> this is where the jsonlite package can really come in handy </p>
+```{r message=FALSE, warning=FALSE} 
+library(tidyverse) 
+library(jsonlite)
+
+messy_data <- tibble(
+  subj = c("subj1", "subj2"),
+  responses = c("{\"Q0\":\"Jenny\",\"Q1\":\"Student\",\"Q2\":\"27\",\"Q3\":\"Purple\"}",
+                "{\"Q0\":\"Peter\",\"Q1\":\"Doctor\",\"Q2\":\"65\",\"Q3\":\"Blue\"}")
+) # this is an example of what json data may look like
+
+messy_data
+
+tidy_data <- messy_data %>%
+  mutate(
+    responses = map(responses, fromJSON), # from the jsonlite package
+    name = map(responses, ~ unlist(.x)["Q0"]) %>% unlist(),
+    occupation = map(responses, ~ unlist(.x)["Q1"])%>% unlist(),
+    age = map(responses, ~ unlist(.x)["Q2"])%>% unlist(),
+    color = map(responses, ~ unlist(.x)["Q3"])%>% unlist()
+  ) %>%
+  select(-responses)
+
+tidy_data
+```

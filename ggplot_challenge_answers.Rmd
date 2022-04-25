@@ -1,0 +1,66 @@
+---
+title: "ggplot challenge answers"
+output: rmdformats::readthedown
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+
+# load libraries
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+library(ggeasy)
+```
+
+# Graph 1
+```{r}
+my_penguins <- penguins
+
+my_penguins_G <- my_penguins %>%
+  filter(species == "Gentoo") %>%
+  na.omit() # this line removes missing values from the dataset
+
+ggplot(my_penguins_G, aes(x=bill_length_mm, y=body_mass_g)) +
+  geom_point() +
+  geom_smooth() +
+  labs(title = "Relationship between bill length \nand body mass of Gentoo penguins",
+       x = "Bill Length (mm)",
+       y = "Body Mass") +
+  easy_text_size(20)
+```
+
+# Graph 2
+```{r}
+ggplot(my_penguins_G, aes(x=bill_length_mm, y=body_mass_g, color=sex)) +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(~sex, scales = "free_x") +
+  labs(title="Relationship between bill length and body mass \nof Gentoo penguins", 
+       subtitle = "Divided and colored by sex",
+       x="Bill Length (mm)", 
+       y="Body Mass") +
+  theme_bw() +
+  easy_remove_legend() +
+  easy_text_size(15)
+```
+
+# Graph 3
+```{r}
+penguins_bm <- my_penguins %>% 
+  na.omit()
+
+ggplot(penguins_bm, aes(x = body_mass_g, fill=species)) + # what happens if you use color? what happens if you put fill outside of aes()
+  geom_histogram(bins = 20, alpha=0.5) +
+  facet_wrap(~species) +
+  labs(title="Body mass of different species of penguins",
+       subtitle="separated by species",
+       x="Body Mass") +
+  theme_bw()  +
+  easy_text_size(15)
+```
+

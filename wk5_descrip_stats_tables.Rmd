@@ -1,0 +1,137 @@
+---
+title: "Descriptive Stats, Tables, & Patchwork Package"
+output: rmdformats::readthedown
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning=FALSE)
+```
+
+# Load libraries
+```{r}
+library(tidyverse)
+library(psych)
+library(palmerpenguins)
+library(janitor)
+library(gt)
+library(papaja)
+library(ggeasy)
+library(patchwork)
+```
+
+# Descriptive Stats
+- example from Brick paper
+  - load in data
+  - clean names
+  - create new variable for demographic analyses
+  - `tabyl()` and add % - ?tabyl and scroll all the way down and you'll see examples
+
+  - age: mean, min, max 
+  - sex: n and percentage
+  - `case_when()` example
+```{r}
+load(file = "merged.rda")
+
+mydata_raw <- merged %>%
+  clean_names() %>%
+  filter(study == "Prolific")
+
+n_subj = length(unique(mydata_raw$id))
+
+mydata_demo <- mydata_raw %>%
+  select(id, age, female) %>%
+  na.omit() %>%
+  distinct(id, age, female) %>%
+  filter(female == 1 | female == 2)
+
+mydata_demo %>%
+  summarise(mean_age = mean(age),
+            sd_age = sd(age),
+            min_age = min(age))
+
+describe(mydata_demo$age) # psych package
+
+# tabyl()
+mydata_demo %>%
+  tabyl(female) %>%
+  adorn_pct_formatting()
+
+range(mydata_demo$age)
+# case_when()
+data <- mydata_demo %>%
+  mutate(age_group = case_when(age < 30 ~ "youngest",
+                               age < 55 & age >= 30 ~ "middle",
+                               age >= 55 ~ "oldest"))
+
+
+#cut_number(mydata_demo$age, 3)
+
+mydata_demo %>%
+  mutate(gender = case_when(female == 1 ~ "female",
+                            female == 2 ~ "male"))
+
+mydata_demo %>%
+  mutate(age_group = case_when(age < 50 ~ "younger",
+                            age >= 50 ~ "older"))
+```
+
+
+# Formatting Tables
+
+- `gt` package
+```{r}
+penguins$bill_length_mm <- as.numeric(penguins$bill_depth_mm)
+
+penguins_data <- penguins %>% 
+  group_by(species) %>% 
+  summarise(mean_bill = mean(bill_length_mm, na.rm = TRUE),
+            sd_bill = sd(bill_length_mm, na.rm = TRUE)) 
+
+penguins_data %>%
+  gt()  %>%
+  fmt_number( # format numbers to 2 decimal places
+    columns = c(mean_bill, sd_bill), 
+    decimals = 1
+  )  %>%
+  tab_header( # title and subtitle
+    title = "Descriptive Stats",
+    subtitle = "Penguin Data"
+  ) %>%
+  tab_footnote( # you can add 1 or more footnotes
+    footnote = "species with bills > 40", 
+    locations = cells_body(
+      columns = c(mean_bill), 
+      rows = mean_bill > 40
+    )
+  )
+
+```
+  
+- apa_table() from papaja package
+- knit to see table
+```{r}
+apa_table(penguins_data)
+```
+
+# Patchwork Package
+
+Easily plot multiple graphs next to each other
+```{r}
+my_penguins <- penguins %>%
+  na.omit()
+
+plot1 <- ggplot(my_penguins, aes(bill_length_mm, bill_depth_mm)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw()
+
+plot2 <- ggplot(my_penguins, aes(bill_length_mm, flipper_length_mm)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw()
+
+plot1 + plot2 
+```
+

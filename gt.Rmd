@@ -1,0 +1,92 @@
+---
+title: "gt()"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning=FALSE)
+```
+
+# Creating pretty tables with gt()!
+
+- This was my first time using gt() and I thought it was really easy to use and the function names are so intuitive (e.g. if you want to merge to columns together... the function is cols_merg())
+- I'll be using the exibble dataset (with a few modifications)
+- Exibble is an example tibble that is part of the gt pacakage 
+```{r}
+library(tidyverse)
+library(gt)
+
+my_table <- exibble %>%
+  mutate(perc = c(10, 20, 30, 40, 50, 60, 70, 80), 
+         sd = c(.1, .1, .25, .2, .1, .1, .3, .25)) %>%
+  arrange(desc(currency)) %>%
+  drop_na(currency)
+
+head(my_table)
+
+my_table$currency[1] <- 55.20
+my_table$currency[2] <- 42.99
+
+my_table %>%
+  gt(
+    rowname_col = "row",
+    groupname_col = "group"
+  ) %>%
+  cols_hide( # hide columns
+    columns = vars(date, time, fctr, char, datetime) # make sure to use vars()
+  ) %>%
+  fmt_number( # format numbers to 2 decimal places
+    columns = vars(num), 
+    decimals = 2
+  ) %>%
+  fmt_number( ### get parentheses!
+    columns = vars(sd),
+    pattern = "({x})"
+  )  %>%
+  fmt_percent( # format percent
+    columns = vars(perc), 
+    scale_values = FALSE, # by default this is set to try which multiplies the variable by 100
+    decimals = 0
+  ) %>%
+  cols_merge( # merge columns into 1
+     columns = vars(perc, sd) #,
+    # pattern = "{1} ({2})" # or this also works to add parentheses in columns you are merging
+  ) %>%
+  cols_label( # added this
+    perc = "% (sd)",
+  ) %>%
+  fmt_currency( # add currency 
+    columns = vars(currency),
+    currency = "AUD"
+  ) %>%
+  tab_header( # title and subtitle
+    title = md("Example Table from **exibble**"), # md is to allow markdown formatting
+    subtitle = md("`exibble` is an gt dataset")
+  ) %>%
+  tab_footnote( # you can add 1 or more footnotes
+    footnote = "These are prices < 15", 
+    locations = cells_body(
+      columns = vars(currency), 
+      rows = currency < 15
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "These are numbers > 500", 
+    locations = cells_body(
+      columns = vars(num), 
+      rows = num > 500
+    )
+  ) %>%
+  data_color(
+    columns = vars(currency), 
+    colors = scales::col_numeric(
+      palette = c("lightblue", "darkblue"),
+    domain = c(0, 60))
+  )
+
+
+```
+

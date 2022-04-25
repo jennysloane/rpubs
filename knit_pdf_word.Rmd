@@ -1,0 +1,49 @@
+---
+title: "Knit to PDF and Word"
+output: rmdformats::readthedown
+editor_options: 
+  chunk_output_type: console
+---
+   
+
+# Step 1: install tinytex 
+You can just run this in your console as you'll only need to do this once
+
+```{r eval=FALSE}
+tinytex::install_tinytex() 
+```
+
+  - [TinyTex info](https://yihui.org/tinytex/#:~:text=TinyTeX%20is%20a%20custom%20LaTeX,cases%2C%20especially%20for%20R%20users.&text=You%20only%20install%20LaTeX%20packages%20you%20actually%20need.)  
+  - This will take several minutes 
+  - Ignore the warning/error message, the installation should carry on even after the warning messages
+  - Needs to go through and install A LOT of packages 
+  - When it's complete, you will see a message that says “Please quit and reopen your R session and IDE (if you are using one, such as RStudio or Emacs) and check if tinytex:::is_tinytex() is TRUE.”
+
+# Step 2: Close and re-open RStudio to restart your session
+
+# Step 3: type tinytex:::is_tinytex() in your console and make sure it returns TRUE
+
+# Step 4: Check the knit drop down, what options do you see?
+  - Try knitting your file to pdf and word if you see those options (this will automatically change the code at the very top of your .Rmd file and that's okay)
+  - You can also change the output manually to one of the following and then just click the knit button
+  - `output: html_document`
+  - `output: pdf_document`
+  - `output: word_document`
+
+# Step 5: If this work, double check your output file and make sure everything looks good (double check your gt table is there if you use the gt function, if it's not try knitting to word instead of pdf)
+
+# Step 6: If this doesn't still doesn't work, trying installing a TeX/LaTeX system on your computer and then go through these steps again
+
+- windows: You can download [MiKTeX](https://miktex.org/download)
+- mac: You can download [MacTeX](http://www.tug.org/mactex/)
+- select option to always install missing packages 
+- Restart Rstudio after this installation 
+
+## Other things to check for:
+
+-  Tools > Global Options > Sweave and check what's selected under "Typeset LaTeX into PDF using:" It should be either pdfLaTeX or XeLaTeX.
+- check to see if you have a .tex file that was created at any point - if you do, try running this line of code
+
+```{r eval = FALSE}
+tinytex::pdflatex('xxxx.tex')
+```

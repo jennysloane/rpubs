@@ -1,0 +1,45 @@
+---
+title: "Show and Tell R"
+output: html_document
+author: "Jenny Sloane"
+date: "June 2, 2020"
+---
+<h2><span style="color:red">Tip 1: install this handy package that shows you each step of your pipe chain sequence </span></h2><br>
+- devtools::install_github("daranzolin/ViewPipeSteps") <br>
+- highlight your text and click "Addins" and select View Pipe Chain Steps  
+```{r message=FALSE, warning=FALSE} 
+library(tidyverse)
+library(ViewPipeSteps)
+
+mydat <- diamonds %>%
+  as_tibble() %>%
+  select(carat, cut, price) %>%
+  filter(cut == "Ideal" | cut == "Premium") %>%
+  arrange(desc(price))
+
+mydat
+```
+
+<h2><span style="color:orange">Tip 2: Command+I to clean up misaligned/messy code </span></h2>
+```{r}
+mydat_messy <- diamonds %>%
+    as_tibble() %>%
+          select(carat, cut, price) %>%
+      filter(cut == "Ideal" | cut == "Premium") %>%
+  arrange(desc(price))
+ 
+mydat_clean <- diamonds %>%
+  as_tibble() %>%
+  select(carat, cut, price) %>%
+  filter(cut == "Ideal" | cut == "Premium") %>%
+  arrange(desc(price))
+```
+
+<h2><span style="color:green">Tip 3: you can hover over a variable that's already been defined and hold down Command (on mac) and click the variable to get a closer look - same function as View() </span></h2> <br>
+
+<h2><span style="color:blue">Tip 4: you can use the mouse wheel to scroll through open tabs within R studio </h2> </span><br>
+
+<h2><span style="color:purple">Tip 5: you can select text/code within a chunk and click insert R (or Alt+Command+I) and it will move it to it's own new chunk </span></h2> <br>
+
+<h2><span style="color:pink">Tip 6: Command + up in console to navigate history </span></h2>
+

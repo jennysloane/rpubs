@@ -1,0 +1,81 @@
+---
+title: "Troubleshooting and Learning New Things in R"
+output: rmdformats::readthedown
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE, warnings = FALSE, message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(ggeasy)
+```
+
+# Errors installing new package...what do you do when you encounter errors?
+
+[installing packages blog](https://www.littlemissdata.com/blog/r-package-install)
+
+- we want to install the “emo” packages
+- we found that install.packages(“emo”) didn’t work and resulted in an error…why??!!
+- packages may or may not exist on CRAN, but install.packages() will only work for packages that exist on CRAN
+- so if you search for a package on CRAN and it’s not there what should you do? …I’d do a Google search for “install package X in R”
+- I often find that if packages aren’t on CRAN they are on github, so you can locate the repository and install the package via devtools
+- you’ll need to install devtools if it’s not already installed
+- make sure to restart your R session after installing devtools
+- also make sure to loab it in library(devtools)
+- there’s an install_github function to install R packages hosted on GitHub in the devtools package 
+- install_github(“DeveloperName/PackageName”)
+```{r}
+# commented out how to uninstall packages:
+
+# library(installr)
+# uninstall.packages("emo")
+
+install.packages("emo") 
+
+install.packages("devtools")
+
+# you can either run one line altogether like this:
+devtools::install_github("hadley/emo")
+
+# or you can run two lines like this:
+library(devtools)
+install_github("hadley/emo")
+
+```
+
+
+```{r}
+library(emo)
+emo::ji("smile")
+```
+
+# Learning Something New
+
+## R documentation
+## Cheatsheets
+
+- [ggplot2 cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
+- [rmarkdown cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
+
+## tutorials
+
+- [r4ds](https://r4ds.had.co.nz/)
+- [RYouWithMe](https://rladiessydney.org/courses/ryouwithme/)
+
+## blog posts 
+
+- [Alison Hill Blogdown Blog](https://alison.rbind.io/post/2017-06-12-up-and-running-with-blogdown/)
+- [purrr](http://www.rebeccabarter.com/blog/2019-08-19_purrr/)
+
+# How to choose where to start???
+
+![Where to Start 2](quad_oriented.png)
+
+- if you're just looking to new things in general then tutorials are a great option because they'll cover a range of topics
+- however, if you have a specific problem then blog posts are often a better place to start because they will walk you through how to use a given package
+- tip from Jenny R: when she is trying to learn something new, she'll Google "how to do X in R blog"
+- if you've used a package before, but can't remember the arguments or just want to see one quick example then start with the R documentation (often there will be examples at the bottom of the documentation)

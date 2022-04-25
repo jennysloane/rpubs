@@ -1,0 +1,60 @@
+---
+title: "tidytuesday - pumpkins!"
+output: html_document
+author: "Jenny Sloane"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE, results='hide')
+```
+
+# Goal: create rain cloud plots with the Pumpkin data!
+
+## load libraries
+```{r}
+library(tidyverse)
+library(tidytuesdayR)
+library(PupillometryR) # geom_flat_violin()
+library(ggeasy)
+library(Hmisc) # %nin%
+
+tuesdata <- tidytuesdayR::tt_load('2021-10-19') # load the tidy tuesday pumpkin dataset 
+pumpkins <- tuesdata$pumpkins 
+```
+
+## Data cleaning and wrangling
+```{r}
+my_pumpkins <- pumpkins %>%
+  select(id, place, weight_lbs, country) %>% # select only variables of interest
+  separate(col = id, into = c("year", "type"), sep = "-") %>% # separate the id column into 2 columns: year and type 
+  filter(type %in% c("F", "W", "L")) %>% # we noticed there was a huge range in the different pumpkins and vegetalbes, so here we'll only compare the field pumpkin, watermelon, and long gourd 
+  filter(place %nin% c("EXH", "DMG")) %>% # %nin% is the opposite of %in% so here, we're excluding all places that "EXH" or "DMG" 
+  mutate(summary_cols = str_detect(place, "damage"), # we noticed there were columns that had summary stats that we need to exclude, so this line of code detects wherever there is a string "damage" and codes it as TRUE and everything else as FALSE
+         year = as.numeric(year)) %>%
+  filter(summary_cols == FALSE) %>% # excluding the summary columns 
+  filter(year %in% c(2013, 2021)) %>% # there's a lot of data... so we're only going to look at and compare 2013 to 2021
+  mutate(weight_lbs = as.numeric(gsub(",", "", weight_lbs)), # we want to make weight numeric, but to do so we need to remove the , so we use the gsub() 
+         place = as.numeric(place)) 
+
+my_pumpkins$type <- factor(my_pumpkins$type, labels = c("Field Pumpkin", "Long Gourd", "Giant Watermelon")) 
+  
+```
+
+## Create Rain Cloud Plots!
+```{r}
+# for this code, I suggest going through line by line to see what each layer does!
+my_pumpkins %>%
+  ggplot(aes(type, weight_lbs, fill=type)) +
+  facet_wrap(~year) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), adjust =2, alpha = 0.8) + # alpha adjusts the transparency
+  coord_flip() +
+  geom_jitter(width = .08, aes(color=type), alpha = .5, size=.8) +
+  geom_boxplot(width=.2, alpha = .3) +
+  scale_color_manual(values = c("#FF7518", "#6c9b30", "#d23b68")) + 
+  scale_fill_manual(values = c("#FF7518", "#6c9b30", "#d23b68")) + 
+  labs(y = "Weight lbs (inches for gourd)", x = "") +
+  theme_bw() +
+  easy_remove_legend() +
+  easy_text_size(15)
+```
+

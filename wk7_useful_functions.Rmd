@@ -1,0 +1,111 @@
+---
+title: "Useful Functions"
+output: rmdformats::readthedown
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning=FALSE)
+```
+
+# load libraries
+```{r}
+library(tidyverse)
+library(psych)
+library(palmerpenguins)
+library(janitor)
+library(gt)
+library(papaja)
+library(ggeasy)
+library(patchwork)
+library(ggbeeswarm)
+```
+
+# case_when() 
+```{r}
+x = 11:60
+
+mydata <- tibble(
+  id = 1:50, 
+  age = sample(x)
+)
+
+range(mydata$age)
+
+mydata %>%
+  mutate(age_groups = case_when(age < 35 ~ "Younger",
+                                age >= 35 ~ "Older"))
+
+```
+
+# sd and se
+```{r}
+library(palmerpenguins)
+penguins <- penguins %>%
+  na.omit()
+
+# get mean, sd, n, se body mass for males and females
+penguins %>%
+  group_by(sex) %>%
+  summarise(mean_bm = mean(body_mass_g),
+            sd_bm = sd(body_mass_g),
+            n_bm = n(),
+            se = sd_bm/sqrt(n_bm))
+```
+
+# summarise across & mutate across
+```{r}
+penguins %>%
+  summarise(across(contains("mm"), list(mean_peng = mean, sd_peng = sd), na.rm=TRUE))
+
+penguins %>%
+  mutate(across(species:island, as.character))
+
+```
+
+# Functions
+why use functions?
+
+- avoid copy and pasting
+- you can add as many arguments as you like and then reuse the function over and over
+```{r}
+penguins <- penguins %>%
+  na.omit()
+
+# x axis = bill length
+# y axis = bill depth
+# title = bill length x bill depth
+penguins1 <- ggplot(penguins, aes(bill_length_mm, bill_depth_mm, fill = species)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(title = "Bill Length x Bill Depth") +
+  easy_remove_legend()
+
+# x axis = bill length
+# y axis = flipper length
+# title = bill length x flipper length
+penguins2 <- ggplot(penguins, aes(bill_length_mm, flipper_length_mm, fill = species)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(title = "Bill Length x Flipper Length") +
+  easy_remove_legend()
+
+penguins_fun <- function(y_var, plot_title="TEST TITLE", ylim1, ylim2) {
+  
+  penguins_plot <- ggplot(penguins, aes(bill_length_mm, y_var, fill = species)) +
+    geom_boxplot() +
+    theme_bw() +
+    labs(title = plot_title) +
+    ylim(ylim1,ylim2) +
+    easy_remove_legend()
+  
+  return(penguins_plot)
+  
+}
+
+plot1 <- penguins_fun(y_var = penguins$flipper_length_mm, plot_title = "Bill length x flipper length", ylim1 = 150, ylim2 = 250)
+plot2 <- penguins_fun(y_var = penguins$bill_depth_mm, plot_title = "bill length x bill depth", ylim1 = 10, ylim2 = 25)
+
+plot1 + plot2
+```
